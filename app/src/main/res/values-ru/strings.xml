@@ -3,4 +3,8 @@
     <string name="title_hint">Название</string>
     <string name="price_hint">Цена</string>
     <string name="add_button_text">Добавить</string>
+    <string name="price_template">%1$s ₽</string>
+    <string name="budget_title">Учет бюджета</string>
+    <string name="outcome">Расходы</string>
+    <string name="income">Доходы</string>
 </resources>

@@ -42,6 +42,11 @@ public class ItemsAdapter extends RecyclerView.Adapter <ItemsAdapter.ItemViewHol
         notifyItemInserted(0);
     }
 
+    public void clear() {
+        itemList.clear();
+        notifyDataSetChanged();
+    }
+
     static class ItemViewHolder extends RecyclerView.ViewHolder {
 
         private TextView nameView, priceView;

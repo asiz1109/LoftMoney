@@ -3,6 +3,7 @@ package com.annasizova.loftmoney;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DividerItemDecoration;
@@ -13,19 +14,29 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+
 public class BudgetFragment extends Fragment {
 
+    private static final String TYPE = "type";
     private static final String PRICE_COLOR = "price_color";
     private ItemsAdapter itemsAdapter;
+    private Api api;
     public static final int REQUEST_CODE = 1001;
+
 
     public BudgetFragment() {
     }
 
-    public static BudgetFragment newInstance(int priceColor) {
+    public static BudgetFragment newInstance(FragmentType fragmentType) {
         BudgetFragment fragment = new BudgetFragment();
         Bundle args = new Bundle();
-        args.putInt(PRICE_COLOR, priceColor);
+        args.putInt(PRICE_COLOR, fragmentType.getPriceColor());
+        args.putString(TYPE, fragmentType.name());
         fragment.setArguments(args);
         return fragment;
     }
@@ -33,6 +44,13 @@ public class BudgetFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        api = ((LoftApp) getActivity().getApplication()).getApi();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        loadItems();
     }
 
     @Override
@@ -50,10 +68,6 @@ public class BudgetFragment extends Fragment {
         decorator.setDrawable(this.getResources().getDrawable(R.drawable.divider_line));
         recyclerView.addItemDecoration(decorator);
 
-        itemsAdapter.addItem(new Item("Молоко", 70));
-        itemsAdapter.addItem(new Item("Зубная щетка", 70));
-        itemsAdapter.addItem(new Item("Сковородка с антипригарным покрытием", 1670));
-
         Button openAddScreenButton = fragment_view.findViewById(R.id.open_add_screen);
         openAddScreenButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -70,8 +84,42 @@ public class BudgetFragment extends Fragment {
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            Item item = new Item(data.getStringExtra("name"), Integer.parseInt(data.getStringExtra("price")));
-            itemsAdapter.addItem(item);
+
+            final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("auth_token", "");
+            final int price = Integer.parseInt(data.getStringExtra("price"));
+            final String name = data.getStringExtra("name");
+            Call <Status> call = api.addItems(new AddItemRequest(price, name, getArguments().getString(TYPE)), token);
+            call.enqueue(new Callback<Status>() {
+                @Override
+                public void onResponse(Call<Status> call, Response<Status> response) {
+                    loadItems();
+                }
+
+                @Override
+                public void onFailure(Call<Status> call, Throwable t) {
+
+                }
+            });
         }
+    }
+
+    private void loadItems() {
+        final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("auth_token", "");
+        Call <List<Item>> itemsResponseCall = api.getItems(getArguments().getString(TYPE), token);
+        itemsResponseCall.enqueue(new Callback<List<Item>>() {
+            @Override
+            public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                itemsAdapter.clear();
+                List <Item> itemsList = response.body();
+                for (Item item : itemsList) {
+                    itemsAdapter.addItem(item);
+                }
+            }
+
+            @Override
+            public void onFailure(Call<List<Item>> call, Throwable t) {
+
+            }
+        });
     }
 }

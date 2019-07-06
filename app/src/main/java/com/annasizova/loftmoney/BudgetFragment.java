@@ -6,13 +6,13 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class BudgetFragment extends Fragment {
 
     private static final String TYPE = "type";
     private static final String PRICE_COLOR = "price_color";
+    private SwipeRefreshLayout swipeRefreshLayout;
     private ItemsAdapter itemsAdapter;
     private Api api;
     public static final int REQUEST_CODE = 1001;
@@ -57,9 +58,16 @@ public class BudgetFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View fragment_view = inflater.inflate(R.layout.fragment_budget, container, false);
+        View fragmentView = inflater.inflate(R.layout.fragment_budget, container, false);
 
-        RecyclerView recyclerView = fragment_view.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = fragmentView.findViewById(R.id.recycler_view);
+        swipeRefreshLayout = fragmentView.findViewById(R.id.refresh);
+        swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                loadItems();
+            }
+        });
         itemsAdapter = new ItemsAdapter(getArguments().getInt(PRICE_COLOR));
         recyclerView.setAdapter(itemsAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -68,15 +76,7 @@ public class BudgetFragment extends Fragment {
         decorator.setDrawable(this.getResources().getDrawable(R.drawable.divider_line));
         recyclerView.addItemDecoration(decorator);
 
-        Button openAddScreenButton = fragment_view.findViewById(R.id.open_add_screen);
-        openAddScreenButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                startActivityForResult(new Intent(getContext(), AddItemActivity.class), REQUEST_CODE);
-            }
-        });
-
-        return fragment_view;
+        return fragmentView;
     }
 
     @Override
@@ -109,6 +109,7 @@ public class BudgetFragment extends Fragment {
         itemsResponseCall.enqueue(new Callback<List<Item>>() {
             @Override
             public void onResponse(Call<List<Item>> call, Response<List<Item>> response) {
+                swipeRefreshLayout.setRefreshing(false);
                 itemsAdapter.clear();
                 List <Item> itemsList = response.body();
                 for (Item item : itemsList) {
@@ -118,7 +119,7 @@ public class BudgetFragment extends Fragment {
 
             @Override
             public void onFailure(Call<List<Item>> call, Throwable t) {
-
+                swipeRefreshLayout.setRefreshing(false);
             }
         });
     }

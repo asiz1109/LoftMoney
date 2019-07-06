@@ -4,7 +4,6 @@ import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -44,11 +43,7 @@ public class AddItemActivity extends AppCompatActivity {
     }
 
     private void changeButtonTextColor (){
-        if (!TextUtils.isEmpty(title) && !TextUtils.isEmpty(price)) {
-            addButton.setTextColor(ContextCompat.getColor(this, R.color.add_button_text_color));
-        } else {
-            addButton.setTextColor(ContextCompat.getColor(this, R.color.add_button_color_inactive));
-        }
+            addButton.setEnabled(!TextUtils.isEmpty(title) && !TextUtils.isEmpty(price));
     }
 
     private class MyTextWatcher implements TextWatcher {

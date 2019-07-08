@@ -20,6 +20,8 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
+import static com.annasizova.loftmoney.MainActivity.AUTH_TOKEN;
+
 public class BudgetFragment extends Fragment {
 
     private static final String TYPE = "type";
@@ -85,7 +87,7 @@ public class BudgetFragment extends Fragment {
 
         if (requestCode == REQUEST_CODE && resultCode == Activity.RESULT_OK) {
 
-            final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("auth_token", "");
+            final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(AUTH_TOKEN, "");
             final int price = Integer.parseInt(data.getStringExtra("price"));
             final String name = data.getStringExtra("name");
             Call <Status> call = api.addItems(new AddItemRequest(price, name, getArguments().getString(TYPE)), token);
@@ -104,7 +106,7 @@ public class BudgetFragment extends Fragment {
     }
 
     private void loadItems() {
-        final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString("auth_token", "");
+        final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(AUTH_TOKEN, "");
         Call <List<Item>> itemsResponseCall = api.getItems(getArguments().getString(TYPE), token);
         itemsResponseCall.enqueue(new Callback<List<Item>>() {
             @Override

@@ -7,4 +7,5 @@
     <string name="budget_title">Учет бюджета</string>
     <string name="outcome">Расходы</string>
     <string name="income">Доходы</string>
+    <string name="enter_button_title">Войти</string>
 </resources>

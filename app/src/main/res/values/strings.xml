@@ -7,4 +7,5 @@
     <string name="budget_title">Budget accounting</string>
     <string name="outcome">Expense</string>
     <string name="income">Income</string>
+    <string name="enter_button_title">Enter</string>
 </resources>

@@ -142,7 +142,7 @@ public class BudgetFragment extends Fragment implements ItemAdapterListener, Act
             itemsAdapter.toggleItem(position);
             itemsAdapter.notifyDataSetChanged();
         }
-        actionMode.setTitle(getContext().getResources().getString(R.string.selected, String.valueOf(itemsAdapter.getSelectedItemsCount())));
+        setActionModeTitle();
     }
 
     @Override
@@ -152,7 +152,13 @@ public class BudgetFragment extends Fragment implements ItemAdapterListener, Act
         if (actionMode == null) {
             ((AppCompatActivity) getActivity()).startSupportActionMode(this);
         }
-        actionMode.setTitle(getContext().getResources().getString(R.string.selected, String.valueOf(itemsAdapter.getSelectedItemsCount())));
+        setActionModeTitle();
+    }
+
+    private void setActionModeTitle() {
+        if (actionMode != null) {
+            actionMode.setTitle(getContext().getResources().getString(R.string.selected, String.valueOf(itemsAdapter.getSelectedItemIds().size())));
+        }
     }
 
     @Override
@@ -206,7 +212,7 @@ public class BudgetFragment extends Fragment implements ItemAdapterListener, Act
             removeItem(selectedId);
         }
         itemsAdapter.clearSelections();
-        actionMode.setTitle(getContext().getResources().getString(R.string.selected, String.valueOf(itemsAdapter.getSelectedItemsCount())));
+        setActionModeTitle();
     }
 
     private void removeItem(final int selectedId) {

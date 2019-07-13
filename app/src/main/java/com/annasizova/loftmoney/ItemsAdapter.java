@@ -28,13 +28,6 @@ public class ItemsAdapter extends RecyclerView.Adapter <ItemsAdapter.ItemViewHol
         return selectedItems.get(position);
     }
 
-    public int getSelectedItemsCount() {
-        int selectedItemsCount = 0;
-        for (int i = 0; i < selectedItems.size(); i++) {
-            if (selectedItems.get(i)) selectedItemsCount++;
-        }
-        return selectedItemsCount;
-    }
 
     public void toggleItem(final int position) {
         selectedItems.put(position, !selectedItems.get(position));

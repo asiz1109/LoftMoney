@@ -8,4 +8,7 @@
     <string name="outcome">Expense</string>
     <string name="income">Income</string>
     <string name="enter_button_title">Enter</string>
+    <string name="remove_title">Delete</string>
+    <string name="remove_confirmation">Are you sure you want to delete the selected items?</string>
+    <string name="selected">Selected: %1$s</string>
 </resources>

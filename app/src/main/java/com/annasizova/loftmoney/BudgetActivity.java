@@ -3,16 +3,21 @@ package com.annasizova.loftmoney;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.view.Window;
+import android.view.WindowManager;
 
 import static com.annasizova.loftmoney.BudgetFragment.REQUEST_CODE;
 
@@ -22,6 +27,9 @@ public class BudgetActivity extends AppCompatActivity {
     private TabLayout tabLayout;
     private ViewPager viewPager;
     private BudgetViewPagerAdapter viewPagerAdapter;
+    private FloatingActionButton floatingActionButton;
+    private Window window;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -30,6 +38,10 @@ public class BudgetActivity extends AppCompatActivity {
 
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        window = BudgetActivity.this.getWindow();
+        window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
+        window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
 
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
@@ -42,8 +54,8 @@ public class BudgetActivity extends AppCompatActivity {
         tabLayout.getTabAt(1).setText(R.string.income);
         tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.marigold));
 
-        FloatingActionButton openAddScreenButton = findViewById(R.id.fab_open_add_screen);
-        openAddScreenButton.setOnClickListener(new View.OnClickListener() {
+        floatingActionButton = findViewById(R.id.fab_open_add_screen);
+        floatingActionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 FragmentManager fragmentManager = getSupportFragmentManager();
@@ -54,6 +66,25 @@ public class BudgetActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    @Override
+    public void onSupportActionModeStarted(@NonNull ActionMode mode) {
+        super.onSupportActionModeStarted(mode);
+        toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey_blue));
+        tabLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.dark_grey_blue));
+        floatingActionButton.hide();
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.action_mode_status_bar));
+
+    }
+
+    @Override
+    public void onSupportActionModeFinished(@NonNull ActionMode mode) {
+        super.onSupportActionModeFinished(mode);
+        toolbar.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        tabLayout.setBackgroundColor(ContextCompat.getColor(this, R.color.colorPrimary));
+        floatingActionButton.show();
+        window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
     }
 
     static class BudgetViewPagerAdapter extends FragmentPagerAdapter {

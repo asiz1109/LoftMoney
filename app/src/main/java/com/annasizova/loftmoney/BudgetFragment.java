@@ -1,16 +1,23 @@
 package com.annasizova.loftmoney;
 
 import android.app.Activity;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
+import android.support.v7.view.ActionMode;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -22,13 +29,15 @@ import retrofit2.Response;
 
 import static com.annasizova.loftmoney.MainActivity.AUTH_TOKEN;
 
-public class BudgetFragment extends Fragment {
+public class BudgetFragment extends Fragment implements ItemAdapterListener, ActionMode.Callback {
 
     private static final String TYPE = "type";
     private static final String PRICE_COLOR = "price_color";
     private SwipeRefreshLayout swipeRefreshLayout;
     private ItemsAdapter itemsAdapter;
     private Api api;
+    private ActionMode actionMode;
+
     public static final int REQUEST_CODE = 1001;
 
 
@@ -71,6 +80,7 @@ public class BudgetFragment extends Fragment {
             }
         });
         itemsAdapter = new ItemsAdapter(getArguments().getInt(PRICE_COLOR));
+        itemsAdapter.setListener(this);
         recyclerView.setAdapter(itemsAdapter);
         recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
 
@@ -122,6 +132,102 @@ public class BudgetFragment extends Fragment {
             @Override
             public void onFailure(Call<List<Item>> call, Throwable t) {
                 swipeRefreshLayout.setRefreshing(false);
+            }
+        });
+    }
+
+    @Override
+    public void onItemClick(final Item item, final int position) {
+        if (itemsAdapter.isSelected(position)) {
+            itemsAdapter.toggleItem(position);
+            itemsAdapter.notifyDataSetChanged();
+        }
+        setActionModeTitle();
+    }
+
+    @Override
+    public void onItemLongClick(final Item item, final int position) {
+        itemsAdapter.toggleItem(position);
+        itemsAdapter.notifyDataSetChanged();
+        if (actionMode == null) {
+            ((AppCompatActivity) getActivity()).startSupportActionMode(this);
+        }
+        setActionModeTitle();
+    }
+
+    private void setActionModeTitle() {
+        if (actionMode != null) {
+            actionMode.setTitle(getContext().getResources().getString(R.string.selected, String.valueOf(itemsAdapter.getSelectedItemIds().size())));
+        }
+    }
+
+    @Override
+    public boolean onCreateActionMode(ActionMode mode, Menu menu) {
+        actionMode = mode;
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareActionMode(ActionMode mode, Menu menu) {
+        MenuInflater inflater = new MenuInflater(getContext());
+        inflater.inflate(R.menu.item_menu_remove, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onActionItemClicked(ActionMode mode, MenuItem item) {
+        if (item.getItemId() == R.id.delete_menu_item) {
+            showDialog();
+        }
+        return false;
+    }
+
+    @Override
+    public void onDestroyActionMode(ActionMode mode) {
+        itemsAdapter.clearSelections();
+        itemsAdapter.notifyDataSetChanged();
+        actionMode = null;
+    }
+
+    private void showDialog() {
+        new AlertDialog.Builder(getContext())
+                .setMessage(R.string.remove_confirmation)
+                .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        removeItems();
+                    }
+                })
+                .setNegativeButton(android.R.string.no, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+
+                    }
+                }).show();
+    }
+
+    private void removeItems() {
+        List<Integer> selectedIds = itemsAdapter.getSelectedItemIds();
+        for (int selectedId : selectedIds) {
+            removeItem(selectedId);
+        }
+        itemsAdapter.clearSelections();
+        setActionModeTitle();
+    }
+
+    private void removeItem(final int selectedId) {
+        final String token = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(AUTH_TOKEN, "");
+        Call<Status> itemsRemoveCall = api.removeItem(selectedId, token);
+        itemsRemoveCall.enqueue(new Callback<Status>() {
+            @Override
+            public void onResponse(Call<Status> call, Response<Status> response) {
+                loadItems();
+                itemsAdapter.clearSelections();
+            }
+
+            @Override
+            public void onFailure(Call<Status> call, Throwable t) {
+
             }
         });
     }

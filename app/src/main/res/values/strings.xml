@@ -11,4 +11,6 @@
     <string name="remove_title">Delete</string>
     <string name="remove_confirmation">Are you sure you want to delete the selected items?</string>
     <string name="selected">Selected: %1$s</string>
+    <string name="balance">Balance</string>
+    <string name="available_finance">Available finance</string>
 </resources>

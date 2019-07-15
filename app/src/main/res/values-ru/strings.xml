@@ -11,4 +11,6 @@
     <string name="remove_title">Удалить</string>
     <string name="remove_confirmation">Вы действительно хотите удалить выбранные элементы?</string>
     <string name="selected">Выделено: %1$s</string>
+    <string name="balance">Баланс</string>
+    <string name="available_finance">Доступные финансы</string>
 </resources>

@@ -21,7 +21,7 @@ import android.view.WindowManager;
 
 import static com.annasizova.loftmoney.BudgetFragment.REQUEST_CODE;
 
-public class BudgetActivity extends AppCompatActivity {
+public class BudgetActivity extends AppCompatActivity implements ViewPager.OnPageChangeListener {
 
     private Toolbar toolbar;
     private TabLayout tabLayout;
@@ -45,6 +45,7 @@ public class BudgetActivity extends AppCompatActivity {
 
         tabLayout = findViewById(R.id.tab_layout);
         viewPager = findViewById(R.id.view_pager);
+        viewPager.addOnPageChangeListener(this);
 
         viewPagerAdapter = new BudgetViewPagerAdapter(getSupportFragmentManager());
         viewPager.setAdapter(viewPagerAdapter);
@@ -52,7 +53,8 @@ public class BudgetActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
         tabLayout.getTabAt(0).setText(R.string.outcome);
         tabLayout.getTabAt(1).setText(R.string.income);
-        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.marigold));
+        tabLayout.getTabAt(2).setText(R.string.balance);
+        tabLayout.setSelectedTabIndicatorColor(getResources().getColor(R.color.colorAccent));
 
         floatingActionButton = findViewById(R.id.fab_open_add_screen);
         floatingActionButton.setOnClickListener(new View.OnClickListener() {
@@ -87,6 +89,24 @@ public class BudgetActivity extends AppCompatActivity {
         window.setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimaryDark));
     }
 
+    @Override
+    public void onPageScrolled(int i, float v, int i1) {
+
+    }
+
+    @Override
+    public void onPageSelected(int i) {
+        if (i == 2) {
+            floatingActionButton.hide();
+        } else {
+            floatingActionButton.show();
+        }
+    }
+
+    @Override
+    public void onPageScrollStateChanged(int i) {
+    }
+
     static class BudgetViewPagerAdapter extends FragmentPagerAdapter {
 
         public BudgetViewPagerAdapter(FragmentManager fm) {
@@ -100,13 +120,15 @@ public class BudgetActivity extends AppCompatActivity {
                     return BudgetFragment.newInstance(FragmentType.expense);
                 case 1:
                     return BudgetFragment.newInstance(FragmentType.income);
+                case 2:
+                    return BalanceFragment.newInstance();
             }
                 return null;
             }
 
             @Override
             public int getCount () {
-                return 2;
+                return 3;
             }
         }
     }

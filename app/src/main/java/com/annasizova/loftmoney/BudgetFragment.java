@@ -36,7 +36,7 @@ public class BudgetFragment extends Fragment implements ItemAdapterListener, Act
     private SwipeRefreshLayout swipeRefreshLayout;
     private ItemsAdapter itemsAdapter;
     private Api api;
-    private ActionMode actionMode;
+    private static ActionMode actionMode;
 
     public static final int REQUEST_CODE = 1001;
 
@@ -231,4 +231,9 @@ public class BudgetFragment extends Fragment implements ItemAdapterListener, Act
             }
         });
     }
+
+    public static void closeActionMode() {
+        if (actionMode != null) actionMode.finish();
+    }
+
 }

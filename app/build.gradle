@@ -10,9 +10,34 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
-    buildTypes {
+
+    signingConfigs {
         release {
-            minifyEnabled false
+            storeFile file ("release_keystore.jks")
+            storePassword '123456'
+            keyAlias 'loftmoney_alias'
+            keyPassword '123456'
+        }
+    }
+
+    buildTypes {
+        debug {
+            resValue("string", "app_name", "LoftMoney_debug")
+        }
+        release {
+            signingConfig signingConfigs.release
+            resValue("string", "app_name", "LoftMoney")
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+        }
+    }
+
+    flavorDimensions 'target'
+    productFlavors {
+        mobile {
+        }
+        beta {
+            applicationIdSuffix ".test"
         }
     }
 }

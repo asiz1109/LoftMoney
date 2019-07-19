@@ -105,6 +105,7 @@ public class BudgetActivity extends AppCompatActivity implements ViewPager.OnPag
 
     @Override
     public void onPageScrollStateChanged(int i) {
+        BudgetFragment.closeActionMode();
     }
 
     static class BudgetViewPagerAdapter extends FragmentPagerAdapter {
